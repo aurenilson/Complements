@@ -1,5 +1,5 @@
 {
-  "name": "complements-website",
+  "name": "nilsoncomplements",
   "version": "1.0.0",
   "description": "Complementos para criar um site ou sistema sem frameworks",
   "main": "index.js",
@@ -13,7 +13,7 @@
   "keywords": ["complements", "utils"],
   "author": "aurenilsonmorais@hotmail.com",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/aurenilson/Complements/issues"
   },
