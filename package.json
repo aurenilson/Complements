@@ -1,0 +1,21 @@
+{
+  "name": "complements-website",
+  "version": "1.0.0",
+  "description": "Complementos para criar um site ou sistema sem frameworks",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aurenilson/Complements.git"
+  },
+  "keywords": ["complements", "utils"],
+  "author": "aurenilsonmorais@hotmail.com",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/aurenilson/Complements/issues"
+  },
+  "homepage": "https://github.com/aurenilson/Complements#readme"
+}
