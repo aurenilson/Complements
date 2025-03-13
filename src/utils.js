@@ -2,25 +2,223 @@ export class Utils {
     constructor() {
         return this;
     }
-    controllers() {
+    system() {
         return {};
     }
     masks() {
-        return {};
+        const self = this;
+        return {
+            money(value) {
+                if (!self.validates().isString(value)) return false;
+                if (!window.Intl) return "R$ " + parseFloat(value).toFixed(2);
+                var formatter = new Intl.NumberFormat("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                });
+                return formatter.format(value).replace(/\u00a0/g, " ");
+            },
+
+            credCard(value) {
+                if (!self.validates().isString(value)) return false;
+                return self
+                    .strings()
+                    .removeCaracters(value)
+                    .match(/.{1,4}/g)
+                    .join(" ")
+                    .substring(0, 19);
+            },
+
+            zipCode(value) {
+                if (!self.validates().isString(value)) return false;
+                return self
+                    .strings()
+                    .removeCaracters(value)
+                    .match(/.{1,5}/g)
+                    .join("-")
+                    .substring(0, 9);
+            },
+
+            birthDate(value) {
+                if (!self.validates().isString(value)) return false;
+                let noformt = self
+                    .strings()
+                    .removeCaracters(value)
+                    .substring(0, 8);
+
+                let arg1 = noformt
+                    .substring(0, 2)
+                    .replace(/(\d{2})/, function (regex, argumento1) {
+                        return `${argumento1}`;
+                    });
+                let arg2 = noformt
+                    .slice(2)
+                    .substring(0, 2)
+                    .replace(/(\d{2})/, function (regex, argumento1) {
+                        return `${argumento1}`;
+                    });
+                let arg3 = noformt
+                    .slice(4)
+                    .substring(0, 4)
+                    .replace(/(\d{4})/, function (regex, argumento1) {
+                        return `${argumento1}`;
+                    });
+
+                return `${arg1}${arg2 ? "/" + arg2 : ""}${
+                    arg3 ? "/" + arg3 : ""
+                }`;
+            },
+
+            cpfOrCnpj(value) {
+                if (!value) return "";
+
+                let noformt = self.strings().removeCaracters(value);
+
+                if (noformt.length > 11) {
+                    // CNPJ
+                    return this.cnpj(value);
+                } else {
+                    // CPF
+                    return this.cpf(value);
+                }
+            },
+
+            cnpj(value) {
+                let noformt = self
+                    .strings()
+                    .removeCaracters(value)
+                    .substring(0, 15);
+                let arg1 = noformt
+                    .substring(0, 2)
+                    .replace(/(\d{2})/, function (regex, argumento1) {
+                        return `${argumento1}`;
+                    });
+                let arg2 = noformt
+                    .slice(2)
+                    .substring(0, 3)
+                    .replace(/(\d{3})/, function (regex, argumento1) {
+                        return `${argumento1}`;
+                    });
+                let arg3 = noformt
+                    .slice(5)
+                    .substring(0, 3)
+                    .replace(/(\d{3})/, function (regex, argumento1) {
+                        return `${argumento1}`;
+                    });
+                let arg4 = noformt
+                    .slice(8)
+                    .substring(0, 4)
+                    .replace(/(\d{4})/, function (regex, argumento1) {
+                        return `${argumento1}`;
+                    });
+
+                let arg5 = noformt
+                    .slice(12)
+                    .substring(0, 2)
+                    .replace(/(\d{2})/, function (regex, argumento1) {
+                        return `${argumento1}`;
+                    });
+
+                return `${arg1}${arg2 ? "." + arg2 : ""}${
+                    arg3 ? "." + arg3 : ""
+                }${arg4 ? "/" + arg4 : ""}${arg5 ? "-" + arg5 : ""}`;
+            },
+
+            cpf(value) {
+                let noformt = self
+                    .strings()
+                    .removeCaracters(value)
+                    .substring(0, 11);
+                let arg1 = noformt
+                    .substring(0, 3)
+                    .replace(/(\d{3})/, function (regex, argumento1) {
+                        return `${argumento1}`;
+                    });
+                let arg2 = noformt
+                    .slice(3)
+                    .substring(0, 3)
+                    .replace(/(\d{3})/, function (regex, argumento1) {
+                        return `${argumento1}`;
+                    });
+                let arg3 = noformt
+                    .slice(6)
+                    .substring(0, 3)
+                    .replace(/(\d{3})/, function (regex, argumento1) {
+                        return `${argumento1}`;
+                    });
+                let arg4 = noformt
+                    .slice(9)
+                    .substring(0, 2)
+                    .replace(/(\d{2})/, function (regex, argumento1) {
+                        return `${argumento1}`;
+                    });
+
+                return `${arg1}${arg2 ? "." + arg2 : ""}${
+                    arg3 ? "." + arg3 : ""
+                }${arg4 ? "-" + arg4 : ""}`;
+            },
+        };
     }
     objects() {
         return {};
     }
     validates() {
-        return {};
+        return {
+            isNumber(value) {
+                return value && typeof value === "number" && isFinite(value);
+            },
+            isString(value) {
+                return (
+                    value &&
+                    (typeof value === "string" || value instanceof String)
+                );
+            },
+            isPromise(value) {
+                return value && value instanceof Promise;
+            },
+            isObject(value) {
+                return (
+                    value && value instanceof Object && !Array.isArray(value)
+                );
+            },
+            isArray(value) {
+                return value && Array.isArray(value);
+            },
+            isEmail(value) {
+                if (!this.isString(value)) return false;
+                return /\S+@\S+\.\S+/.test(value);
+            },
+            hasLastname(value) {
+                if (!this.isString(value)) return false;
+                return /\S+ \S+/.test(value.trim());
+            },
+            hasObject(value, object) {
+                if (!this.isString(value) || !this.isObject(object))
+                    return false;
+                return Object.prototype.hasOwnProperty.call(object, value);
+            },
+        };
     }
     dates() {
         return {};
     }
     links() {
+        const self = this;
         return {
-            breadcrumb(value) {
-                if (!Array.isArray(value)) return;
+            generate(value) {
+                if (!self.validates().isString(value)) return;
+                return value
+                    ? self.strings().removeSpecialCaracters(
+                          value
+                              .replaceAll("-", " ")
+                              .replaceAll("  ", " ")
+                              .replace(/[^\w-]+/g, "-")
+                              .toLowerCase()
+                              .trim()
+                      )
+                    : "";
+            },
+            breadCrumb(value) {
+                if (!self.validates().isArray(value)) return;
                 const breadcrumb_ = [];
                 value.forEach((item) => {
                     if (item.url && item.name) {
@@ -29,6 +227,7 @@ export class Utils {
                         );
                     }
                 });
+                if (!breadcrumb_.length) return;
                 return (
                     '<section style="display: flex; align-items: center; gap: 5px; font-size: 15px; text-transform: capitalize;">' +
                     breadcrumb_.join(
@@ -38,16 +237,15 @@ export class Utils {
                 );
             },
             searchParams(param, decode = false, url = window.location.href) {
-                if (url.indexOf("?") == -1) return "";
+                if (url.indexOf("?") == -1) return;
                 return (
                     decode ? new URL(decodeURI(url)) : new URL(url)
                 ).searchParams.get(param);
             },
             serialize(value, prefix = false) {
-                if (!value instanceof Object) return "";
-                return prefix
-                    ? "?"
-                    : "" +
+                if (!self.validates().isObject(value)) return;
+                return Object.keys(value).length
+                    ? (prefix ? "?" : "") +
                           Object.keys(value)
                               .map((item) => {
                                   return (
@@ -56,18 +254,22 @@ export class Utils {
                                       encodeURIComponent(value[item])
                                   );
                               })
-                              .join("&");
+                              .join("&")
+                    : null;
             },
         };
     }
     strings() {
+        const self = this;
         return {
             captalizeWord: (value) => {
+                if (!self.validates().isString(value)) return;
                 return value
                     ? (value.charAt(0).toUpperCase() + value.slice(1)).trim()
                     : "";
             },
             captalizePhrase: (value) => {
+                if (!self.validates().isString(value)) return;
                 return value
                     ? value
                           .trim()
@@ -82,18 +284,23 @@ export class Utils {
                     : "";
             },
             upperCase: (value) => {
+                if (!self.validates().isString(value)) return;
                 return value ? value.toUpperCase() : "";
             },
             lowerCase: (value) => {
+                if (!self.validates().isString(value)) return;
                 return value ? value.toLowerCase() : "";
             },
             removeNumbers: (value) => {
+                if (!self.validates().isString(value)) return "";
                 return value ? value.replace(/[0-9]/g, "").trim() : "";
             },
-            removeCaracteres: (value) => {
+            removeCaracters: (value) => {
+                if (!self.validates().isString(value)) return "";
                 return value ? value.toString().replace(/\D+/g, "") : "";
             },
             removeSpecialCaracters: (value) => {
+                if (!self.validates().isString(value)) return;
                 return value
                     ? value
                           .normalize("NFD")
@@ -102,6 +309,8 @@ export class Utils {
                     : "";
             },
             removeHTMLTags: (value) => {
+                if (!self.validates().isString(value)) return;
+
                 function htmlDecode(input) {
                     var doc = new DOMParser().parseFromString(
                         input,
