@@ -9,6 +9,7 @@ export class Utils {
         const self = this;
         return {
             money(value) {
+                value = self.strings().removeCaracters(value);
                 if (!self.validates().isString(value)) return false;
                 if (!window.Intl) return "R$ " + parseFloat(value).toFixed(2);
                 var formatter = new Intl.NumberFormat("pt-BR", {
@@ -20,22 +21,20 @@ export class Utils {
 
             credCard(value) {
                 if (!self.validates().isString(value)) return false;
-                return self
+                const response = self
                     .strings()
                     .removeCaracters(value)
-                    .match(/.{1,4}/g)
-                    .join(" ")
-                    .substring(0, 19);
+                    .match(/.{1,4}/g);
+                return response ? response.join(" ").substring(0, 19) : null;
             },
 
             zipCode(value) {
                 if (!self.validates().isString(value)) return false;
-                return self
+                const response = self
                     .strings()
                     .removeCaracters(value)
-                    .match(/.{1,5}/g)
-                    .join("-")
-                    .substring(0, 9);
+                    .match(/.{1,5}/g);
+                return response ? response.join(" ").substring(0, 9) : null;
             },
 
             birthDate(value) {
@@ -69,16 +68,15 @@ export class Utils {
             },
 
             cpfOrCnpj(value) {
-                if (!value) return "";
-
+                if (!self.validates().isString(value)) return false;
                 let noformt = self.strings().removeCaracters(value);
 
                 if (noformt.length > 11) {
                     // CNPJ
-                    return this.cnpj(value);
+                    return self.masks().cnpj(value);
                 } else {
                     // CPF
-                    return this.cpf(value);
+                    return self.masks().cpf(value);
                 }
             },
 
@@ -162,6 +160,7 @@ export class Utils {
         return {};
     }
     validates() {
+        const self = this;
         return {
             isNumber(value) {
                 return value && typeof value === "number" && isFinite(value);
@@ -184,15 +183,18 @@ export class Utils {
                 return value && Array.isArray(value);
             },
             isEmail(value) {
-                if (!this.isString(value)) return false;
+                if (!self.validates().isString(value)) return false;
                 return /\S+@\S+\.\S+/.test(value);
             },
             hasLastname(value) {
-                if (!this.isString(value)) return false;
+                if (!self.validates().isString(value)) return false;
                 return /\S+ \S+/.test(value.trim());
             },
             hasObject(value, object) {
-                if (!this.isString(value) || !this.isObject(object))
+                if (
+                    !self.validates().isString(value) ||
+                    !self.validates().isObject(object)
+                )
                     return false;
                 return Object.prototype.hasOwnProperty.call(object, value);
             },
@@ -207,14 +209,16 @@ export class Utils {
             generate(value) {
                 if (!self.validates().isString(value)) return;
                 return value
-                    ? self.strings().removeSpecialCaracters(
-                          value
-                              .replaceAll("-", " ")
-                              .replaceAll("  ", " ")
-                              .replace(/[^\w-]+/g, "-")
-                              .toLowerCase()
-                              .trim()
-                      )
+                    ? self
+                          .strings()
+                          .removeSpecialCaracters(
+                              value
+                                  .replaceAll("-", " ")
+                                  .replaceAll("  ", " ")
+                                  .replaceAll(" ", "-")
+                                  .toLowerCase()
+                                  .trim()
+                          )
                     : "";
             },
             breadCrumb(value) {
@@ -297,7 +301,7 @@ export class Utils {
             },
             removeCaracters: (value) => {
                 if (!self.validates().isString(value)) return "";
-                return value ? value.toString().replace(/\D+/g, "") : "";
+                return value ? value.toString().replace(/\D+/g, "").trim() : "";
             },
             removeSpecialCaracters: (value) => {
                 if (!self.validates().isString(value)) return;
